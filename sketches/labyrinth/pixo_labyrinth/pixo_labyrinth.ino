@@ -37,11 +37,43 @@ void setup() {
   Serial.println(IMU.testConnection() ? "MPU6050 connection successful" : "MPU6050 connection failed");
   pixo.begin();
   pixo.setBrightness(BRIGHTNESS);
+  
+  generateMaze();
 }
 
 void loop() {
-  int16_t x_axis = IMU.getRotationX();
-  int16_t y_axis = IMU.getRotationY();
-  int16_t z_axis = IMU.getRotationZ();
-  Serial.println("X Axis: " + String(x_axis) + "/Y Axis: " + String(y_axis) + "/Z Axis: " + String(z_axis));
+  // clrscr()
+  pixo.fillScreen(0);
+
+  // Draw generated maze, walls (0s), gray
+  for (int x = 0; x < MAZE_SIZE; x++) {
+    for (int y = 0; y < MAZE_SIZE; y++) {
+      if (labyrinth[x][y] == 0){
+        pixo.drawPixel(x, y, pixo.Color(200, 200, 200));
+      }
+    }
+  }
+  pixo.show();
+  delay(1000);
+}
+
+void generateMaze() {
+  // Fill with walls (0s)
+  for (int x = 0; x < MAZE_SIZE; x++) {
+    for (int y = 0; y < MAZE_SIZE; y++) {
+      labyrinth[x][y] = 0;
+    }
+  }
+
+  // Start from a cell around the middle of the matrix
+  int startX = random(6, 10);
+  int startY = random(6, 10);
+  labyrinth[startX][startY] = 1;
+  Serial.println("Center: ("+String(startX)+", "+String(startY)+")");
+
+  // clrscr() and briefly show the starting cell
+  pixo.fillScreen(0);
+  pixo.drawPixel(startX, startY, pixo.Color(0, 255, 0));
+  pixo.show();
+  delay(1000);
 }
