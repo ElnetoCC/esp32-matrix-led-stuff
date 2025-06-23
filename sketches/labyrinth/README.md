@@ -7,4 +7,12 @@ A maze-based game for the PIXO Pixel, controlled using an MPU6050 accelerometer.
 - Generated 16x16 mazes
 - Accelerometer-based movement
 - Real-time rendering on LED matrix
-- Auto-reset with new maze on win
+- New maze every reset
+
+## 📄 References
+
+- `https://weblog.jamisbuck.org/2010/12/27/maze-generation-recursive-backtracking`
+
+## 🔎 Current Status
+
+![Recursive Backtracking Algorithm](https://i.imgur.com/rWWgtCd.mp4)
