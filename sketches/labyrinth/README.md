@@ -15,4 +15,5 @@ A maze-based game for the PIXO Pixel, controlled using an MPU6050 accelerometer.
 
 ## 🔎 Current Status
 
-![Recursive Backtracking Algorithm](https://i.imgur.com/rWWgtCd.mp4)
+Video in imgur:
+- `https://imgur.com/a/LeWwrE1`
