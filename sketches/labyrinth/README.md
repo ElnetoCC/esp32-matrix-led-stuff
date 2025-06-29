@@ -15,5 +15,10 @@ A maze-based game for the PIXO Pixel, controlled using an MPU6050 accelerometer.
 
 ## 🔎 Current Status
 
-Video in imgur:
-- `https://imgur.com/a/LeWwrE1`
+### 23.06.2025 Random maze generation (every reset) from starting point
+
+![image](https://i.imgur.com/wqOtO6A.gif)
+
+### 29.06.2025 Random exit generation ensuring it is connected to a path
+
+![image](https://i.imgur.com/1vgNEjt.gif)

@@ -23,13 +23,15 @@ Adafruit_DotStarMatrix pixo = Adafruit_DotStarMatrix(
 MPU6050 IMU;
 
 uint8_t labyrinth[MATRIX_WIDTH][MATRIX_HEIGHT];
-// axes movement     UP,RI,DO,LE
+// axes movement    {UP,RI,DO, LE}
 int direction_x[] = { 0, 1, 0, -1};
 int direction_y[] = {-1, 0, 1,  0};
 #define UP    0
 #define RIGHT 1
 #define DOWN  2
 #define LEFT  3
+int directions[4] = {UP, DOWN, RIGHT, LEFT};
+int exitX = -1, exitY = -1;
 
 void setup() {
   Serial.begin(115200);
@@ -81,10 +83,12 @@ void generateMaze() {
   Serial.println("Center: ("+String(startX)+", "+String(startY)+")");
 
   carveMaze(startX, startY);
+  carveExit();
 
-  // clrscr() and briefly show the starting pixel
+  // clrscr() and briefly show the starting pixel and exit pixel
   pixo.fillScreen(0);
-  pixo.drawPixel(startX, startY, pixo.Color(0, 255, 0));
+  pixo.drawPixel(startX, startY, pixo.Color(0, 128, 255));
+  pixo.drawPixel(exitX, exitY, pixo.Color(0, 255, 0));
   pixo.show();
   delay(1000);
 }
@@ -98,7 +102,6 @@ void generateMaze() {
 // Source: https://weblog.jamisbuck.org/2010/12/27/maze-generation-recursive-backtracking
 // --------------------------------------------------------------------
 void carveMaze(int current_x, int current_y) {
-  int directions[4] = {UP, DOWN, RIGHT, LEFT};
   shuffleDirections(directions);
 
   for (int i = 0; i < 4; i++) {
@@ -116,6 +119,40 @@ void carveMaze(int current_x, int current_y) {
   }
 }
 
+// To carve an exit we will just select a random edge pixel in a random
+// direction and then verify that this potential exit is actually connected
+// to a path, if not we continue trying in another random pixel.
+void carveExit() {
+  bool exitCarved = false;
+  do {
+    // Randomizing our four possible directions 
+    int exitDirection = random(4);
+    switch(exitDirection) {
+      case UP:
+        exitX = random(1, MATRIX_WIDTH - 1);
+        exitY = 0;
+        break;
+      case DOWN:
+        exitX = random(1, MATRIX_WIDTH - 1);
+        exitY = MATRIX_HEIGHT - 1;
+        break;
+      case RIGHT:
+        exitX = MATRIX_WIDTH - 1;
+        exitY = random(1, MATRIX_HEIGHT - 1);
+        break;
+      case LEFT:
+        exitX = 0;
+        exitY = random(1, MATRIX_HEIGHT - 1);
+        break;
+    }
+    // Verify this potential exit is connected to a path
+    exitCarved = isConnectedToPath(exitX, exitY, exitDirection);
+    Serial.println("Direction: "+String(exitDirection)+", Exit X: "+String(exitX)+", Exit Y: "+String(exitY));
+  } while(!exitCarved);
+  // If an exit has been placed and it is connected to a path, carve it
+  labyrinth[exitX][exitY] = 1;
+}
+
 void shuffleDirections(int* dirs) {
   for (int i = 0; i < 4; i++) {
     int r = random(4);
@@ -123,6 +160,21 @@ void shuffleDirections(int* dirs) {
     dirs[i] = dirs[r];
     dirs[r] = temp;
   }
+}
+
+bool isConnectedToPath(int x, int y, int direction) {
+  // This simple method is checking if there is an adjacent path to the
+  // potential exit selected, depending on the direction.
+  if (direction == UP && labyrinth[x][y + 1] == 1) {
+    return true;
+  } else if (direction == DOWN && labyrinth[x][MATRIX_HEIGHT - 2] == 1) {
+    return true;
+  } else if (direction == RIGHT && labyrinth[MATRIX_WIDTH - 2][y] == 1) {
+    return true;
+  } else if (direction == LEFT && labyrinth[x + 1][y] == 1) {
+    return true;
+  }
+  return false;
 }
 
 bool isInBounds(int x, int y) {
